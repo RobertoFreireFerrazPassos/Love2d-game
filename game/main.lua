@@ -63,6 +63,7 @@ function resetGame()
         {x = 9, y = 10, l = 0},
         {x = 8, y = 10, l = 0},
     }
+    pause = false
     direction = "right"
     nextDirection = "right"
     gameState = "playing"
@@ -85,6 +86,7 @@ function resetGame()
     sounds = {}
     sounds.eat = love.audio.newSource("sounds/coin.wav", "static")
     sounds.die = love.audio.newSource("sounds/hurt.wav", "static")
+    sounds.pause = love.audio.newSource("sounds/pause.wav", "static")
     spawnApple()
 end
 
@@ -125,6 +127,10 @@ function love.update(dt)
         end
         return
     elseif gameState ~= "playing" then
+        return
+    end
+
+    if pause then
         return
     end
 
@@ -251,6 +257,9 @@ function love.draw()
         love.graphics.rectangle("fill", 0, 0, box.w * gridSize, gridSize)
         love.graphics.setColor(0, 0, 0)
         love.graphics.print("Score: " .. score, 10, 2)
+        if pause then
+            love.graphics.print("PAUSE", 200, 2)
+        end
         love.graphics.print("High Score: " .. highScore, 350, 2)
     elseif gameState == "scoreDisplay" then
         if isHighestScore then
@@ -269,5 +278,10 @@ end
 function love.keypressed(key)
     if key == controls.start and gameState == "gameover" then
         resetGame()
+    else
+        if key == controls.start then
+            pause = not pause
+            sounds.pause:play()
+        end
     end
 end
