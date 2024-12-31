@@ -1,5 +1,5 @@
 -- alt + l
--- compact main.lua to zip file and rename to .love extension
+-- compact all files in same level as file main.lua to zip file and rename to .love extension
 -- Key mappings from controls/main.gptk
 local controls = {
     back = "escape",
@@ -56,6 +56,7 @@ function love.load()
     love.graphics.setFont(pixelFont)
     loadHighScore()
     resetGame()
+    crtShader = love.graphics.newShader("shaders/crt_shader.glsl")
 end
 
 function resetGame()
@@ -272,18 +273,21 @@ function drawHUD()
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle("fill", 0, 0, box.w * gridSize, gridSize)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.print("Score: " .. score, 10, 2)
+    love.graphics.print("Score: " .. score, 10, 2)    
+    love.graphics.print("High Score: " .. highScore, 400, 2)
     if pause then
+        love.graphics.setColor(1, 0, 0)
         love.graphics.print("PAUSE", 280, 2)
     end
-    love.graphics.print("High Score: " .. highScore, 400, 2)
 end
 
 function love.draw()
     if gameState == "playing" then
+        love.graphics.setShader(crtShader)
         drawApple()
         drawSnake()        
         drawGates()
+        love.graphics.setShader()
         drawHUD()        
     elseif gameState == "scoreDisplay" then
         if isHighestScore then
