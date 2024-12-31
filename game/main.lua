@@ -216,8 +216,12 @@ function drawCircle(obj)
     love.graphics.circle("fill", obj.x * gridSize + gridSize / 2, obj.y * gridSize + gridSize / 2, gridSize / 2)
 end
 
-function drawRectangle(obj)
+function drawSquare(obj)
     love.graphics.rectangle("fill", obj.x * gridSize, obj.y * gridSize, gridSize, gridSize)
+end
+
+function printCenter(text)
+    love.graphics.printf(text, 0, (box.h * gridSize)/ 2 - 20, box.w * gridSize, "center")
 end
 
 function love.draw()
@@ -236,27 +240,29 @@ function love.draw()
 
         if currentLevel == 0 then
             love.graphics.setColor(1, 1, 0)
-            drawRectangle(yellowSquare)
+            drawSquare(yellowSquare)
         elseif currentLevel == 1 then
             love.graphics.setColor(0, 0, 1)
-            drawRectangle(blueSquare)
+            drawSquare(blueSquare)
         end
 
-        -- Draw score
+        -- Draw HUD
         love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle("fill", 0, 0, box.w * gridSize, gridSize)
+        love.graphics.setColor(0, 0, 0)
         love.graphics.print("Score: " .. score, 10, 2)
         love.graphics.print("High Score: " .. highScore, 350, 2)
     elseif gameState == "scoreDisplay" then
         if isHighestScore then
             love.graphics.setColor(1, 1, 0)
-            love.graphics.printf("Highest Score: " .. score, 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+            printCenter("Highest Score: " .. score)
         else
             love.graphics.setColor(1, 1, 1)
-            love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+            printCenter("Score: " .. score)
         end
     elseif gameState == "gameover" then
         love.graphics.setColor(1, 0, 0)
-        love.graphics.printf("Game Over\nPress Enter to Restart", 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+        printCenter("Game Over\nPress Enter to Restart")
     end
 end
 
