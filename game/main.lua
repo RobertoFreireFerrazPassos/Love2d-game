@@ -27,21 +27,7 @@ local controls = {
     right_analog_left = "mouse_movement_left",
     right_analog_right = "mouse_movement_right"
 }
-
-local gameOverTimer = 0
-local gridSize = 20
-local snake = {}
-local apple = {}
-local direction = "right"
-local nextDirection = "right"
-local gameState = "playing"
-local blueSquare = {x = 8, y = 6}
-local yellowSquare = {x = 24, y = 18}
-local currentLevel = 0
-local score = 0
-local highScore = 0
-local scoreFile = "gamestate.lua"
-local isHighestScore = false
+scoreFile = "gamestate.lua"
 
 local function saveHighScore()
     local file = io.open(scoreFile, "w")
@@ -78,10 +64,20 @@ function resetGame()
     direction = "right"
     nextDirection = "right"
     gameState = "playing"
+    gameOverTimer = 0
+    gridSize = 20
+    apple = {}
+    direction = "right"
+    nextDirection = "right"
+    gameState = "playing"
+    blueSquare = {x = 8, y = 6}
+    yellowSquare = {x = 24, y = 18}
     currentLevel = 0
     score = 0
     isHighestScore = false
-
+    sounds = {}
+    sounds.eat = love.audio.newSource("sounds/coin.wav", "static")
+    sounds.die = love.audio.newSource("sounds/hurt.wav", "static")
     spawnApple()
 end
 
@@ -123,6 +119,7 @@ function love.update(dt)
 end
 
 function endGame()
+    sounds.die:play()
     if score > highScore then
         isHighestScore = true
         highScore = score
@@ -178,7 +175,8 @@ function moveSnake()
 
     -- Check if apple is eaten
     if newHead.x == apple.x and newHead.y == apple.y then
-        score = score + 1
+        score = score + 1        
+        sounds.eat:play()
         spawnApple()
     else
         table.remove(snake) -- Remove tail
