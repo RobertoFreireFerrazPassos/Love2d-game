@@ -90,8 +90,8 @@ end
 
 function spawnApple()
     local validPositions = {}
-    for x = box.x, box.w do
-        for y = box.y, box.h do
+    for x = box.x, box.w - 1 do
+        for y = box.y, box.h - 1 do
             local valid = true
 
             if ((blueSquare.x == x and blueSquare.y == y) or (yellowSquare.x == x and yellowSquare.y == y)) then
@@ -262,7 +262,7 @@ function love.draw()
         end
     elseif gameState == "gameover" then
         love.graphics.setColor(1, 0, 0)
-        printCenter("Game Over\nPress Enter to Restart")
+        printCenter("Game Over\nPress Start to Restart")
     end
 end
 
