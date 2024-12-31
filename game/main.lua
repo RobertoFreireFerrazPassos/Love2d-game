@@ -91,6 +91,8 @@ function spawnApple()
 end
 
 function love.update(dt)
+    local timeToUpdate = 0.2
+
     if gameState == "scoreDisplay" then
         gameOverTimer = gameOverTimer - dt
         if gameOverTimer <= 0 then
@@ -111,7 +113,11 @@ function love.update(dt)
         nextDirection = "right"
     end
 
-    if love.timer.getTime() % 0.2 < dt then
+    if love.keyboard.isDown(controls.b) then
+        timeToUpdate = 0.1
+    end
+
+    if love.timer.getTime() % timeToUpdate < dt then
         moveSnake()
     end
 end
@@ -179,26 +185,34 @@ function moveSnake()
     end
 end
 
+function drawCircle(obj)
+    love.graphics.circle("fill", obj.x * gridSize + gridSize / 2, obj.y * gridSize + gridSize / 2, gridSize / 2)
+end
+
+function drawRectangle(obj)
+    love.graphics.rectangle("fill", obj.x * gridSize, obj.y * gridSize, gridSize, gridSize)
+end
+
 function love.draw()
     if gameState == "playing" then
         -- Draw apple
         love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", apple.x * gridSize, apple.y * gridSize, gridSize, gridSize)
+        drawCircle(apple)
 
         -- Draw snake
         love.graphics.setColor(0, 1, 0)
         for _, segment in ipairs(snake) do
             if (segment.l == currentLevel) then
-                love.graphics.rectangle("fill", segment.x * gridSize, segment.y * gridSize, gridSize, gridSize)
+                drawCircle(segment)
             end
         end
 
         if currentLevel == 0 then
             love.graphics.setColor(1, 1, 0)
-            love.graphics.rectangle("fill", yellowSquare.x * gridSize, yellowSquare.y * gridSize, gridSize, gridSize)
+            drawRectangle(yellowSquare)
         elseif currentLevel == 1 then
             love.graphics.setColor(0, 0, 1)
-            love.graphics.rectangle("fill", blueSquare.x * gridSize, blueSquare.y * gridSize, gridSize, gridSize)
+            drawRectangle(blueSquare)
         end
 
         -- Draw score
