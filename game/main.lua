@@ -28,6 +28,7 @@ local controls = {
     right_analog_right = "mouse_movement_right"
 }
 scoreFile = "gamestate.lua"
+ScoreToRemoveGates = 500
 
 local function saveHighScore()
     local file = io.open(scoreFile, "w")
@@ -132,6 +133,12 @@ function love.update(dt)
 
     if pause then
         return
+    end
+
+    if score > ScoreToRemoveGates then
+        -- place outside of game area
+        gate1 = {x = 100, y = 100}
+        gate2 = {x = 100, y = 100}
     end
 
     if (love.keyboard.isDown(controls.up) or love.keyboard.isDown(controls.left_analog_up)) and direction ~= "down" then
