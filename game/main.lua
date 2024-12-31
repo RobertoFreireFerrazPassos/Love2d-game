@@ -1,6 +1,5 @@
 -- alt + l
 -- compact main.lua to zip file and rename to .love extension
-
 -- Key mappings from controls/main.gptk
 local controls = {
     back = "escape",
@@ -29,113 +28,122 @@ local controls = {
     right_analog_right = "mouse_movement_right"
 }
 
+local gridSize = 20
+local snake = {}
+local apple = {}
+local direction = "right"
+local nextDirection = "right"
+local gameState = "playing"
+local score = 0
+
 function love.load()
-    camera = require 'libraries/camera'
-    cam = camera()
-
-    anim8 = require 'libraries/anim8'
-    love.graphics.setDefaultFilter("nearest", "nearest")
-
-    sti = require 'libraries/sti'
-    gameMap = sti('maps/testMap.lua')
-
-    player = {}
-    player.x = 400
-    player.y = 200
-    player.speed = 5
-    player.spriteSheet = love.graphics.newImage('sprites/player-sheet.png')
-    player.grid = anim8.newGrid( 12, 18, player.spriteSheet:getWidth(), player.spriteSheet:getHeight() )
-
-    player.animations = {}
-    player.animations.down = anim8.newAnimation( player.grid('1-4', 1), 0.2 )
-    player.animations.left = anim8.newAnimation( player.grid('1-4', 2), 0.2 )
-    player.animations.right = anim8.newAnimation( player.grid('1-4', 3), 0.2 )
-    player.animations.up = anim8.newAnimation( player.grid('1-4', 4), 0.2 )
-
-    player.anim = player.animations.left
-
-    sounds = {}
-    sounds.blip = love.audio.newSource("sounds/sound.wav", "static");
-    sounds.music = love.audio.newSource("sounds/music.wav", "stream");
-    sounds.music:play()
-
-    -- Set the window resolution
     love.window.setMode(640, 480, { resizable = false })
+    love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
+    
+    resetGame()
+end
 
-    -- Set a background color
-    love.graphics.setBackgroundColor(0.2, 0.2, 0.2) -- Dark gray
+function resetGame()
+    snake = {
+        {x = 10, y = 10},
+        {x = 9, y = 10},
+        {x = 8, y = 10},
+    }
+    direction = "right"
+    nextDirection = "right"
+    gameState = "playing"
+    score = 0
+
+    spawnApple()
+end
+
+function spawnApple()
+    apple.x = love.math.random(1, love.graphics.getWidth() / gridSize - 1)
+    apple.y = love.math.random(1, love.graphics.getHeight() / gridSize - 1)
 end
 
 function love.update(dt)
-    local isMoving = false
+    if gameState ~= "playing" then return end
 
-    if (love.keyboard.isDown(controls.right) or love.keyboard.isDown(controls.left_analog_right)) then
-        player.x = player.x + player.speed
-        player.anim = player.animations.right        
-        sounds.blip:play()
-        isMoving = true
+    if (love.keyboard.isDown(controls.up) or love.keyboard.isDown(controls.left_analog_up)) and direction ~= "down" then
+        nextDirection = "up"
+    elseif (love.keyboard.isDown(controls.down) or love.keyboard.isDown(controls.left_analog_down)) and direction ~= "up" then
+        nextDirection = "down"
+    elseif (love.keyboard.isDown(controls.left) or love.keyboard.isDown(controls.left_analog_left)) and direction ~= "right" then
+        nextDirection = "left"
+    elseif (love.keyboard.isDown(controls.right) or love.keyboard.isDown(controls.left_analog_right)) and direction ~= "left" then
+        nextDirection = "right"
     end
 
-    if (love.keyboard.isDown(controls.left) or love.keyboard.isDown(controls.left_analog_left)) then
-        player.x = player.x - player.speed
-        player.anim = player.animations.left
-        isMoving = true
+    if love.timer.getTime() % 0.2 < dt then
+        moveSnake()
+    end
+end
+
+function moveSnake()
+    direction = nextDirection
+    local head = snake[1]
+    local newHead = {x = head.x, y = head.y}
+
+    if direction == "up" then
+        newHead.y = newHead.y - 1
+    elseif direction == "down" then
+        newHead.y = newHead.y + 1
+    elseif direction == "left" then
+        newHead.x = newHead.x - 1
+    elseif direction == "right" then
+        newHead.x = newHead.x + 1
     end
 
-    if (love.keyboard.isDown(controls.down) or love.keyboard.isDown(controls.left_analog_down)) then
-        player.y = player.y + player.speed
-        player.anim = player.animations.down
-        isMoving = true
+    -- Check collision with walls
+    if newHead.x < 0 or newHead.y < 0 or newHead.x >= love.graphics.getWidth() / gridSize or newHead.y >= love.graphics.getHeight() / gridSize then
+        gameState = "gameover"
+        return
     end
 
-    if (love.keyboard.isDown(controls.up) or love.keyboard.isDown(controls.left_analog_up)) then
-        player.y = player.y - player.speed
-        player.anim = player.animations.up
-        isMoving = true
+    -- Check collision with self
+    for _, segment in ipairs(snake) do
+        if newHead.x == segment.x and newHead.y == segment.y then
+            gameState = "gameover"
+            return
+        end
     end
 
-    if isMoving == false then
-        player.anim:gotoFrame(2)
-    end
+    -- Move snake
+    table.insert(snake, 1, newHead)
 
-    player.anim:update(dt)
-
-    -- Update camera position
-    cam:lookAt(player.x, player.y)
-
-    -- This section prevents the camera from viewing outside the background
-    -- First, get width/height of the game window
-    local w = love.graphics.getWidth()
-    local h = love.graphics.getHeight()
-
-    -- Left border
-    if cam.x < w/2 then
-        cam.x = w/2
-    end
-
-    -- Right border
-    if cam.y < h/2 then
-        cam.y = h/2
-    end
-
-    -- Get width/height of background
-    local mapW = gameMap.width * gameMap.tilewidth
-    local mapH = gameMap.height * gameMap.tileheight
-
-    -- Right border
-    if cam.x > (mapW - w/2) then
-        cam.x = (mapW - w/2)
-    end
-    -- Bottom border
-    if cam.y > (mapH - h/2) then
-        cam.y = (mapH - h/2)
+    -- Check if apple is eaten
+    if newHead.x == apple.x and newHead.y == apple.y then
+        score = score + 1
+        spawnApple()
+    else
+        table.remove(snake) -- Remove tail
     end
 end
 
 function love.draw()
-    cam:attach()
-        gameMap:drawLayer(gameMap.layers["Ground"])
-        gameMap:drawLayer(gameMap.layers["Trees"])
-        player.anim:draw(player.spriteSheet, player.x, player.y, nil, 6, nil, 6, 9)
-    cam:detach()
+    if gameState == "playing" then
+        -- Draw apple
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", apple.x * gridSize, apple.y * gridSize, gridSize, gridSize)
+
+        -- Draw snake
+        love.graphics.setColor(0, 1, 0)
+        for _, segment in ipairs(snake) do
+            love.graphics.rectangle("fill", segment.x * gridSize, segment.y * gridSize, gridSize, gridSize)
+        end
+
+        -- Draw score
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("Score: " .. score, 10, 10)
+    elseif gameState == "gameover" then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.printf("Game Over\nPress Enter to Restart", 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+    end
+end
+
+function love.keypressed(key)
+    if key == controls.start and gameState == "gameover" then
+        resetGame()
+    end
 end
