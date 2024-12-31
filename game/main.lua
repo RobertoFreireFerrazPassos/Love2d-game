@@ -28,6 +28,7 @@ local controls = {
     right_analog_right = "mouse_movement_right"
 }
 
+local gameOverTimer = 0
 local gridSize = 20
 local snake = {}
 local apple = {}
@@ -63,7 +64,15 @@ function spawnApple()
 end
 
 function love.update(dt)
-    if gameState ~= "playing" then return end
+    if gameState == "scoreDisplay" then
+        gameOverTimer = gameOverTimer - dt
+        if gameOverTimer <= 0 then
+            gameState = "gameover"
+        end
+        return
+    elseif gameState ~= "playing" then
+        return
+    end
 
     if (love.keyboard.isDown(controls.up) or love.keyboard.isDown(controls.left_analog_up)) and direction ~= "down" then
         nextDirection = "up"
@@ -97,14 +106,16 @@ function moveSnake()
 
     -- Check collision with walls
     if newHead.x < 0 or newHead.y < 0 or newHead.x >= love.graphics.getWidth() / gridSize or newHead.y >= love.graphics.getHeight() / gridSize then
-        gameState = "gameover"
+        gameState = "scoreDisplay"
+        gameOverTimer = 2 -- 2 seconds delay
         return
     end
 
     -- Check collision with self
     for _, segment in ipairs(snake) do
         if newHead.x == segment.x and newHead.y == segment.y then
-            gameState = "gameover"
+            gameState = "scoreDisplay"
+            gameOverTimer = 2 -- 2 seconds delay
             return
         end
     end
@@ -136,6 +147,9 @@ function love.draw()
         -- Draw score
         love.graphics.setColor(1, 1, 1)
         love.graphics.print("Score: " .. score, 10, 10)
+    elseif gameState == "scoreDisplay" then
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
     elseif gameState == "gameover" then
         love.graphics.setColor(1, 0, 0)
         love.graphics.printf("Game Over\nPress Enter to Restart", 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
