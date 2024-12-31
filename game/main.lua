@@ -19,10 +19,10 @@ local controls = {
     down = "s",
     left = "a",
     right = "d",
-    left_analog_up = "w",
-    left_analog_down = "s",
-    left_analog_left = "a",
-    left_analog_right = "d",
+    left_analog_up = "up",
+    left_analog_down = "down",
+    left_analog_left = "left",
+    left_analog_right = "right",
     right_analog_up = "mouse_movement_up",
     right_analog_down = "mouse_movement_down",
     right_analog_left = "mouse_movement_left",
@@ -69,26 +69,26 @@ end
 function love.update(dt)
     local isMoving = false
 
-    if love.keyboard.isDown(controls.right) then
+    if (love.keyboard.isDown(controls.right) or love.keyboard.isDown(controls.left_analog_right)) then
         player.x = player.x + player.speed
         player.anim = player.animations.right        
         sounds.blip:play()
         isMoving = true
     end
 
-    if love.keyboard.isDown(controls.left) then
+    if (love.keyboard.isDown(controls.left) or love.keyboard.isDown(controls.left_analog_left)) then
         player.x = player.x - player.speed
         player.anim = player.animations.left
         isMoving = true
     end
 
-    if love.keyboard.isDown(controls.down) then
+    if (love.keyboard.isDown(controls.down) or love.keyboard.isDown(controls.left_analog_down)) then
         player.y = player.y + player.speed
         player.anim = player.animations.down
         isMoving = true
     end
 
-    if love.keyboard.isDown(controls.up) then
+    if (love.keyboard.isDown(controls.up) or love.keyboard.isDown(controls.left_analog_up)) then
         player.y = player.y - player.speed
         player.anim = player.animations.up
         isMoving = true
