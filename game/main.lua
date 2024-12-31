@@ -258,9 +258,9 @@ function love.draw()
         love.graphics.setColor(0, 0, 0)
         love.graphics.print("Score: " .. score, 10, 2)
         if pause then
-            love.graphics.print("PAUSE", 200, 2)
+            love.graphics.print("PAUSE", 280, 2)
         end
-        love.graphics.print("High Score: " .. highScore, 350, 2)
+        love.graphics.print("High Score: " .. highScore, 400, 2)
     elseif gameState == "scoreDisplay" then
         if isHighestScore then
             love.graphics.setColor(1, 1, 0)
