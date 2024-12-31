@@ -113,6 +113,10 @@ function spawnApple()
         end
     end
 
+    if #validPositions == 0 then
+        return
+    end
+
     local randIndex = love.math.random(1, #validPositions)
     apple.x = validPositions[randIndex].x
     apple.y = validPositions[randIndex].y
@@ -237,36 +241,50 @@ function printCenter(text)
     love.graphics.printf(text, 0, (box.h * gridSize)/ 2 - 20, box.w * gridSize, "center")
 end
 
+function drawApple()
+    if apple.x == nil or apple.y == nil then
+        return
+    end
+
+    love.graphics.setColor(1, 0, 0)
+    drawCircle(apple)
+end
+
+function drawSnake()
+    love.graphics.setColor(0, 1, 0)
+    for _, segment in ipairs(snake) do
+        if (segment.l == currentLevel) then
+            drawCircle(segment)
+        end
+    end
+end
+
+function drawGates()
+    love.graphics.setColor(1, 1, 0)
+    if currentLevel == 0 then
+        drawSquare(gate2)
+    elseif currentLevel == 1 then
+        drawSquare(gate1)
+    end
+end
+
+function drawHUD()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle("fill", 0, 0, box.w * gridSize, gridSize)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("Score: " .. score, 10, 2)
+    if pause then
+        love.graphics.print("PAUSE", 280, 2)
+    end
+    love.graphics.print("High Score: " .. highScore, 400, 2)
+end
+
 function love.draw()
     if gameState == "playing" then
-        -- Draw apple
-        love.graphics.setColor(1, 0, 0)
-        drawCircle(apple)
-
-        -- Draw snake
-        love.graphics.setColor(0, 1, 0)
-        for _, segment in ipairs(snake) do
-            if (segment.l == currentLevel) then
-                drawCircle(segment)
-            end
-        end
-
-        love.graphics.setColor(1, 1, 0)
-        if currentLevel == 0 then
-            drawSquare(gate2)
-        elseif currentLevel == 1 then
-            drawSquare(gate1)
-        end
-
-        -- Draw HUD
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.rectangle("fill", 0, 0, box.w * gridSize, gridSize)
-        love.graphics.setColor(0, 0, 0)
-        love.graphics.print("Score: " .. score, 10, 2)
-        if pause then
-            love.graphics.print("PAUSE", 280, 2)
-        end
-        love.graphics.print("High Score: " .. highScore, 400, 2)
+        drawApple()
+        drawSnake()        
+        drawGates()
+        drawHUD()        
     elseif gameState == "scoreDisplay" then
         if isHighestScore then
             love.graphics.setColor(1, 1, 0)
@@ -284,8 +302,7 @@ end
 function love.keypressed(key)
     if key == controls.start and gameState == "gameover" then
         resetGame()
-    else
-        if key == controls.start then
+    else if gameState == "playing" and key == controls.start then
             pause = not pause
             sounds.pause:play()
         end
