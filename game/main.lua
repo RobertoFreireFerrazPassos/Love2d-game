@@ -39,11 +39,27 @@ local blueSquare = {x = 8, y = 6}
 local yellowSquare = {x = 24, y = 18}
 local currentLevel = 0
 local score = 0
+local highScore = 0
+local scoreFile = "highscore_snakegame.txt"
+local isHighestScore = false
+
+local function saveHighScore()
+    local file = love.filesystem.newFile(scoreFile, "w")
+    file:write(tostring(highScore))
+    file:close()
+end
+
+local function loadHighScore()
+    if love.filesystem.getInfo(scoreFile) then
+        local file = love.filesystem.read(scoreFile)
+        highScore = tonumber(file) or 0
+    end
+end
 
 function love.load()
     love.window.setMode(640, 480, { resizable = false })
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
-    
+    loadHighScore()
     resetGame()
 end
 
@@ -56,7 +72,9 @@ function resetGame()
     direction = "right"
     nextDirection = "right"
     gameState = "playing"
+    currentLevel = 0
     score = 0
+    isHighestScore = false
 
     spawnApple()
 end
@@ -92,6 +110,16 @@ function love.update(dt)
     end
 end
 
+function endGame()
+    if score > highScore then
+        isHighestScore = true
+        highScore = score
+        saveHighScore()
+    end
+    gameState = "scoreDisplay"
+    gameOverTimer = 2 -- 2 seconds delay
+end
+
 function moveSnake()
     direction = nextDirection
     local head = snake[1]
@@ -121,16 +149,14 @@ function moveSnake()
 
     -- Check collision with walls
     if newHead.x < 0 or newHead.y < 0 or newHead.x >= love.graphics.getWidth() / gridSize or newHead.y >= love.graphics.getHeight() / gridSize then
-        gameState = "scoreDisplay"
-        gameOverTimer = 2 -- 2 seconds delay
+        endGame()
         return
     end
 
     -- Check collision with self
     for _, segment in ipairs(snake) do
         if newHead.x == segment.x and newHead.y == segment.y and newHead.l == segment.l then
-            gameState = "scoreDisplay"
-            gameOverTimer = 2 -- 2 seconds delay
+            endGame()
             return
         end
     end
@@ -172,9 +198,15 @@ function love.draw()
         -- Draw score
         love.graphics.setColor(1, 1, 1)
         love.graphics.print("Score: " .. score, 10, 10)
+        love.graphics.print("High Score: " .. highScore, 350, 10)
     elseif gameState == "scoreDisplay" then
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+        if isHighestScore then
+            love.graphics.setColor(1, 1, 0)
+            love.graphics.printf("Highest Score: " .. score, 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+        else
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
+        end
     elseif gameState == "gameover" then
         love.graphics.setColor(1, 0, 0)
         love.graphics.printf("Game Over\nPress Enter to Restart", 0, love.graphics.getHeight() / 2 - 20, love.graphics.getWidth(), "center")
