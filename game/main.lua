@@ -35,6 +35,9 @@ local apple = {}
 local direction = "right"
 local nextDirection = "right"
 local gameState = "playing"
+local blueSquare = {x = 8, y = 6}
+local yellowSquare = {x = 24, y = 18}
+local currentLevel = 0
 local score = 0
 
 function love.load()
@@ -46,9 +49,9 @@ end
 
 function resetGame()
     snake = {
-        {x = 10, y = 10},
-        {x = 9, y = 10},
-        {x = 8, y = 10},
+        {x = 10, y = 10, l = 0},
+        {x = 9, y = 10, l = 0},
+        {x = 8, y = 10, l = 0},
     }
     direction = "right"
     nextDirection = "right"
@@ -92,7 +95,19 @@ end
 function moveSnake()
     direction = nextDirection
     local head = snake[1]
-    local newHead = {x = head.x, y = head.y}
+    local newLevel = head.l
+
+    if (currentLevel == 0 and yellowSquare.x == head.x and yellowSquare.y == head.y) then
+        newLevel = 1
+        currentLevel = 1
+        spawnApple()
+    elseif (currentLevel == 1 and blueSquare.x == head.x and blueSquare.y == head.y) then
+        newLevel = 0
+        currentLevel = 0
+        spawnApple()
+    end
+
+    local newHead = {x = head.x, y = head.y, l = newLevel}
 
     if direction == "up" then
         newHead.y = newHead.y - 1
@@ -113,7 +128,7 @@ function moveSnake()
 
     -- Check collision with self
     for _, segment in ipairs(snake) do
-        if newHead.x == segment.x and newHead.y == segment.y then
+        if newHead.x == segment.x and newHead.y == segment.y and newHead.l == segment.l then
             gameState = "scoreDisplay"
             gameOverTimer = 2 -- 2 seconds delay
             return
@@ -141,7 +156,17 @@ function love.draw()
         -- Draw snake
         love.graphics.setColor(0, 1, 0)
         for _, segment in ipairs(snake) do
-            love.graphics.rectangle("fill", segment.x * gridSize, segment.y * gridSize, gridSize, gridSize)
+            if (segment.l == currentLevel) then
+                love.graphics.rectangle("fill", segment.x * gridSize, segment.y * gridSize, gridSize, gridSize)
+            end
+        end
+
+        if currentLevel == 0 then
+            love.graphics.setColor(1, 1, 0)
+            love.graphics.rectangle("fill", yellowSquare.x * gridSize, yellowSquare.y * gridSize, gridSize, gridSize)
+        elseif currentLevel == 1 then
+            love.graphics.setColor(0, 0, 1)
+            love.graphics.rectangle("fill", blueSquare.x * gridSize, blueSquare.y * gridSize, gridSize, gridSize)
         end
 
         -- Draw score
