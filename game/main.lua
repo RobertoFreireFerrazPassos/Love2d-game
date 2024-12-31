@@ -40,19 +40,25 @@ local yellowSquare = {x = 24, y = 18}
 local currentLevel = 0
 local score = 0
 local highScore = 0
-local scoreFile = "highscore_snakegame.txt"
+local scoreFile = "gamestate.lua"
 local isHighestScore = false
 
 local function saveHighScore()
-    local file = love.filesystem.newFile(scoreFile, "w")
-    file:write(tostring(highScore))
-    file:close()
+    local file = io.open(scoreFile, "w")
+
+    if file then
+        file:write(tostring(highScore))
+        file:close()
+    end
 end
 
 local function loadHighScore()
-    if love.filesystem.getInfo(scoreFile) then
-        local file = love.filesystem.read(scoreFile)
-        highScore = tonumber(file) or 0
+    local file = io.open(scoreFile, "r")
+
+    if file then
+        local content = file:read("*all") 
+        highScore = tonumber(content) or 0
+        file:close()
     end
 end
 
