@@ -51,6 +51,8 @@ end
 function love.load()
     love.window.setMode(640, 480, { resizable = false })
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
+    pixelFont = love.graphics.newFont("slkscreb.ttf", 16)
+    love.graphics.setFont(pixelFont)
     loadHighScore()
     resetGame()
 end
