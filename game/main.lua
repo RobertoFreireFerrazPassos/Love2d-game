@@ -73,8 +73,8 @@ function resetGame()
     direction = "right"
     nextDirection = "right"
     gameState = "playing"
-    blueSquare = {x = 8, y = 6}
-    yellowSquare = {x = 24, y = 18}
+    gate1 = {x = 8, y = 6}
+    gate2 = {x = 24, y = 18}
     currentLevel = 0
     box = {}
     box.x = 0
@@ -96,7 +96,7 @@ function spawnApple()
         for y = box.y, box.h - 1 do
             local valid = true
 
-            if ((blueSquare.x == x and blueSquare.y == y) or (yellowSquare.x == x and yellowSquare.y == y)) then
+            if ((gate1.x == x and gate1.y == y) or (gate2.x == x and gate2.y == y)) then
                 valid = false
             end
 
@@ -169,11 +169,11 @@ function moveSnake()
     local head = snake[1]
     local newLevel = head.l
 
-    if (currentLevel == 0 and yellowSquare.x == head.x and yellowSquare.y == head.y) then
+    if (currentLevel == 0 and gate2.x == head.x and gate2.y == head.y) then
         newLevel = 1
         currentLevel = 1
         spawnApple()
-    elseif (currentLevel == 1 and blueSquare.x == head.x and blueSquare.y == head.y) then
+    elseif (currentLevel == 1 and gate1.x == head.x and gate1.y == head.y) then
         newLevel = 0
         currentLevel = 0
         spawnApple()
@@ -244,12 +244,11 @@ function love.draw()
             end
         end
 
+        love.graphics.setColor(1, 1, 0)
         if currentLevel == 0 then
-            love.graphics.setColor(1, 1, 0)
-            drawSquare(yellowSquare)
+            drawSquare(gate2)
         elseif currentLevel == 1 then
-            love.graphics.setColor(0, 0, 1)
-            drawSquare(blueSquare)
+            drawSquare(gate1)
         end
 
         -- Draw HUD
