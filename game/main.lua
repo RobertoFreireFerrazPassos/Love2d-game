@@ -73,6 +73,11 @@ function resetGame()
     blueSquare = {x = 8, y = 6}
     yellowSquare = {x = 24, y = 18}
     currentLevel = 0
+    box = {}
+    box.x = 0
+    box.y = 1
+    box.w = love.graphics.getWidth() / gridSize
+    box.h = love.graphics.getHeight() / gridSize
     score = 0
     isHighestScore = false
     sounds = {}
@@ -82,8 +87,30 @@ function resetGame()
 end
 
 function spawnApple()
-    apple.x = love.math.random(1, love.graphics.getWidth() / gridSize - 1)
-    apple.y = love.math.random(1, love.graphics.getHeight() / gridSize - 1)
+    local validPositions = {}
+    for x = box.x, box.w do
+        for y = box.y, box.h do
+            local valid = true
+
+            if ((blueSquare.x == x and blueSquare.y == y) or (yellowSquare.x == x and yellowSquare.y == y)) then
+                valid = false
+            end
+
+            for _, segment in ipairs(snake) do
+                if segment.x == x and segment.y == y then
+                    valid = false
+                    break
+                end
+            end
+            if valid then
+                table.insert(validPositions, {x = x, y = y})
+            end
+        end
+    end
+
+    local randIndex = love.math.random(1, #validPositions)
+    apple.x = validPositions[randIndex].x
+    apple.y = validPositions[randIndex].y
 end
 
 function love.update(dt)
@@ -157,7 +184,7 @@ function moveSnake()
     end
 
     -- Check collision with walls
-    if newHead.x < 0 or newHead.y < 0 or newHead.x >= love.graphics.getWidth() / gridSize or newHead.y >= love.graphics.getHeight() / gridSize then
+    if newHead.x < box.x or newHead.y < box.y or newHead.x >= box.w or newHead.y >= box.h then
         endGame()
         return
     end
@@ -215,8 +242,8 @@ function love.draw()
 
         -- Draw score
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print("Score: " .. score, 10, 10)
-        love.graphics.print("High Score: " .. highScore, 350, 10)
+        love.graphics.print("Score: " .. score, 10, 2)
+        love.graphics.print("High Score: " .. highScore, 350, 2)
     elseif gameState == "scoreDisplay" then
         if isHighestScore then
             love.graphics.setColor(1, 1, 0)
