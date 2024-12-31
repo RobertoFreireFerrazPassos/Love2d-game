@@ -22,10 +22,6 @@ local controls = {
     left_analog_down = "down",
     left_analog_left = "left",
     left_analog_right = "right",
-    right_analog_up = "mouse_movement_up",
-    right_analog_down = "mouse_movement_down",
-    right_analog_left = "mouse_movement_left",
-    right_analog_right = "mouse_movement_right"
 }
 scoreFile = "gamestate.lua"
 ScoreToRemoveGates = 500
