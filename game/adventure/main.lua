@@ -1,17 +1,20 @@
 -- alt + l
 -- compact all files in same level as file main.lua to zip file and rename to .love extension
 local SceneManager = require "src/scenes/SceneManager"
-local introScene = require "src/scenes/introscene"
-local menuScene = require "src/scenes/menuscene"
-local gameScene = require "src/scenes/gamescene"
+local createIntroScene = require "src/scenes/introscene"
+local createMenuScene = require "src/scenes/menuscene"
+local createGameScene = require "src/scenes/gamescene"
 local sceneManager = SceneManager:new()
 
+local introScene = createIntroScene(sceneManager)
+local menuScene = createMenuScene(sceneManager)
+local gameScene = createGameScene(sceneManager)
 sceneManager:registerScene("intro", introScene)
 sceneManager:registerScene("menu", menuScene)
 sceneManager:registerScene("game", gameScene)
 
 function love.load()
-    sceneManager:switchTo("game")
+    sceneManager:switchTo("intro")
 end
 
 function love.update(dt)
