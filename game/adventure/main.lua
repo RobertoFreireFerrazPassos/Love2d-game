@@ -1,5 +1,8 @@
 -- alt + l
 -- compact all files in same level as file main.lua to zip file and rename to .love extension
+local configureGame = require "src/config/gameconfiguration"
+configureGame()
+
 local SceneManager = require "src/scenes/SceneManager"
 local createIntroScene = require "src/scenes/introscene"
 local createMenuScene = require "src/scenes/menuscene"
