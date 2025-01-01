@@ -3,7 +3,7 @@
 local configureGame = require "src/config/gameconfiguration"
 configureGame()
 
-local SceneManager = require "src/scenes/SceneManager"
+local SceneManager = require "src/scenes/scenemanager"
 local createIntroScene = require "src/scenes/introscene"
 local createMenuScene = require "src/scenes/menuscene"
 local createGameScene = require "src/scenes/gamescene"
