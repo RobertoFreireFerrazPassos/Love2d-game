@@ -1,19 +1,17 @@
 local function createMenuScene(sceneManager)
     return {
+        menuImage = love.graphics.newImage('sprites/menu.png'),
+        controls = require "src/utils/controls",
         enter = function(self)
-            print("Entered Menu Scene")
         end,
         update = function(self, dt)
-            -- Update logic for menu scene
-        end,
-        draw = function(self)
-            love.graphics.print("Menu Scene", 10, 10)
-        end,
-        keypressed = function(self, key)
-            if key == "space" then
+            if love.keyboard.isDown(self.controls.b) or love.keyboard.isDown(self.controls.start) then                
                 sceneManager:switchTo("game")
             end
-        end
+        end,
+        draw = function(self)
+            love.graphics.draw(self.menuImage,0,0)
+        end,
     }
 end
 

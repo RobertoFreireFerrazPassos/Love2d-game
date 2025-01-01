@@ -1,18 +1,33 @@
+local intro = {
+    introImage = love.graphics.newImage('sprites/intro.png'),
+    timer = 0,
+    delay = 2,
+    update = function(self, dt)
+        self.timer = self.timer + dt
+    end,
+    isFinished = function(self)
+        return self.timer >= self.delay
+    end,
+    draw = function(self)
+        love.graphics.draw(self.introImage,0,0)
+    end
+}
+
 local function createIntroScene(sceneManager)
     return {
+        intro = intro,
         enter = function(self)
-            print("Entered Intro Scene")
         end,
         update = function(self, dt)
-            -- Update logic for intro scene
-        end,
-        draw = function(self)
-            love.graphics.print("Intro Scene", 10, 10)
-        end,
-        keypressed = function(self, key)
-            if key == "return" then
+            intro:update(dt)
+            if intro:isFinished() then
                 sceneManager:switchTo("menu")
             end
+        end,
+        draw = function(self)
+            intro:draw()
+        end,
+        keypressed = function(self, key)
         end
     }
 end
