@@ -1,25 +1,13 @@
+FileIO = require "src/utils/file"
+fileIO = FileIO:new("gamestate.lua")
+
 local game = {
-    scoreFile = "gamestate.lua",
     scoreToRemoveGates = 500,
     controls = require "src/utils/controls",
     highScore = 0,
-    saveHighScore = function(self)
-        local file = io.open(self.scoreFile, "w")    
-        if file then
-            file:write(tostring(self.highScore))
-            file:close()
-        end
-    end,
-    loadHighScore = function(self)
-        local file = io.open(self.scoreFile, "r")    
-        if file then
-            local content = file:read("*all") 
-            self.highScore = tonumber(content) or 0
-            file:close()
-        end
-    end,
     load = function(self)
-        self:loadHighScore()
+        local content = fileIO:load()
+        self.highScore = tonumber(content) or 0
         self:resetGame()
         self.crtShader = love.graphics.newShader("shaders/crt_shader.glsl")
     end,
@@ -131,7 +119,7 @@ local game = {
         if self.score > self.highScore then
             self.isHighestScore = true
             self.highScore = self.score
-            self:saveHighScore()
+            fileIO:save(self.highScore)
         end
         self.gameState = "scoreDisplay"
         self.gameOverTimer = 2 -- delay
